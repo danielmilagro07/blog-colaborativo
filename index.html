@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trabajo Colaborativo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Variables ─────────────────────────────────────────── */
+    :root {
+      --ink:    #1a1a2e;
+      --cream:  #fdf8f0;
+      --sand:   #f2e8d5;
+      --terra:  #c4622d;
+      --amber:  #e8a838;
+      --sage:   #5a7a62;
+      --sky:    #3a7ca5;
+      --lilac:  #8b6ba8;
+      --accent: #c4622d;
+      --radius: 16px;
+    }
+
+    /* ── Reset & Base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ── Decorative noise layer ────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header / Hero ─────────────────────────────────────── */
+    header {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      overflow: hidden;
+      background: var(--ink);
+    }
+
+    /* Floating blobs */
+    header::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,98,45,0.35) 0%, transparent 70%);
+      top: -150px; left: -150px;
+      animation: drift 10s ease-in-out infinite alternate;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(58,124,165,0.3) 0%, transparent 70%);
+      bottom: -100px; right: -100px;
+      animation: drift 13s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.08); }
+    }
+
+    .hero-tag {
+      position: relative;
+      z-index: 2;
+      display: inline-block;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber);
+      border: 1px solid rgba(232,168,56,0.4);
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s 0.1s both;
+    }
+
+    .hero-title {
+      position: relative;
+      z-index: 2;
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      font-weight: 900;
+      line-height: 0.95;
+      color: var(--cream);
+      letter-spacing: -0.03em;
+      animation: fadeUp 0.9s 0.2s both;
+    }
+
+    .hero-title span {
+      display: block;
+      color: var(--terra);
+      font-style: italic;
+    }
+
+    .hero-subtitle {
+      position: relative;
+      z-index: 2;
+      max-width: 520px;
+      margin-top: 2rem;
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.75;
+      color: rgba(253,248,240,0.7);
+      animation: fadeUp 1s 0.35s both;
+    }
+
+    .hero-cta {
+      position: relative;
+      z-index: 2;
+      margin-top: 2.5rem;
+      display: inline-block;
+      padding: 0.9rem 2.5rem;
+      background: var(--terra);
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      border-radius: 999px;
+      transition: transform 0.25s, box-shadow 0.25s;
+      animation: fadeUp 1s 0.5s both;
+    }
+
+    .hero-cta:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(196,98,45,0.5);
+    }
+
+    /* scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(253,248,240,0.4);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      animation: fadeIn 1.5s 1.2s both;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, rgba(253,248,240,0.4), transparent);
+      animation: grow 1.5s ease-in-out infinite;
+    }
+
+    @keyframes grow {
+      0%, 100% { transform: scaleY(0.3); opacity: 0; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* ── Sections wrapper ──────────────────────────────────── */
+    .section {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 30px;
+      height: 2px;
+      background: var(--terra);
+    }
+
+    .section-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-desc {
+      max-width: 580px;
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.8;
+      color: #555;
+      margin-bottom: 4rem;
+    }
+
+    /* ── Flip Card Grid ────────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1100px) {
+      .cards-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    }
+    @media (max-width: 480px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Flip card structure */
+    .flip-card {
+      perspective: 1200px;
+      height: 340px;
+      cursor: pointer;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+      border-radius: var(--radius);
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* FRONT */
+    .flip-card-front {
+      background: var(--sand);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      justify-content: flex-start;
+    }
+
+    /* Illustration banner */
+    .card-illustration {
+      width: 100%;
+      height: 160px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--card-gradient, linear-gradient(135deg, var(--terra), var(--amber)));
+    }
+
+    .card-illustration svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .card-illustration-emoji {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      z-index: 2;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+    }
+
+    /* Card content area */
+    .card-content {
+      padding: 1.1rem 1.4rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      flex: 1;
+    }
+
+    .card-number {
+      font-size: 0.65rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--card-color, var(--terra));
+      opacity: 0.7;
+    }
+
+    .card-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .card-hint {
+      margin-top: auto;
+      padding-top: 0.5rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--card-color, var(--terra));
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* BACK */
+    .flip-card-back {
+      background: var(--card-color, var(--terra));
+      transform: rotateY(180deg);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+      padding: 1.8rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+
+    .back-icon {
+      font-size: 2.2rem;
+    }
+
+    .back-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .back-text {
+      font-size: 0.86rem;
+      font-weight: 500;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.88);
+      max-width: 240px;
+    }
+
+    /* Hover lift */
+    .flip-card:not(.flipped):hover .flip-card-inner {
+      transform: rotateY(8deg) translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+    }
+
+    /* ── Quote / Pull-out ──────────────────────────────────── */
+    .quote-band {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+
+    .quote-band blockquote {
+      max-width: 780px;
+      margin: 0 auto;
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      font-weight: 800;
+      font-style: italic;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
+
+    .quote-band blockquote span {
+      color: var(--amber);
+    }
+
+    .quote-band cite {
+      display: block;
+      margin-top: 1.5rem;
+      font-style: normal;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(253,248,240,0.45);
+    }
+
+    /* ── Info strip ────────────────────────────────────────── */
+    .info-strip {
+      background: var(--sand);
+      padding: 5rem 2rem;
+    }
+
+    .info-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .info-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+
+    .info-text .section-desc { margin-bottom: 0; }
+
+    .pillars-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .pillar-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--cream);
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pillar-item:hover {
+      transform: translateX(6px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    }
+
+    .pillar-icon {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .pillar-text strong {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .pillar-text span {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    footer {
+      background: var(--ink);
+      color: rgba(253,248,240,0.45);
+      text-align: center;
+      padding: 3rem 2rem;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+    }
+
+    footer strong { color: var(--cream); }
+
+    /* ── Animations ────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ HERO ══════════════════════════════════════════════ -->
+  <header>
+    <div class="hero-tag">Habilidades de interacción</div>
+    <h1 class="hero-title">
+      Trabajo
+      <span>Colaborativo</span>
+    </h1>
+    <p class="hero-subtitle">
+      El trabajo en equipo y la colaboración son habilidades blandas clave para el desarrollo psicosocial, el aprendizaje colectivo y la formación.
+    </p>
+    <a href="#tarjetas" class="hero-cta">Explora más</a>
+    <div class="scroll-hint">Scroll</div>
+  </header>
+
+  <!-- ══ FLIP CARDS ════════════════════════════════════════ -->
+  <section id="tarjetas" class="section">
+    <div class="section-label"></div>
+     <h2 class="section-title reveal">¿Que es el trabajo en<br>equipo?</h2>
+    <p class="section-desc reveal">
+      El trabajo en equipo y la colaboración son habilidades blandas fundamentales que favorecen el desarrollo psicosocial, fortalecen el aprendizaje colectivo y contribuyen a la formación integral de las personas. Estas competencias permiten construir relaciones basadas en confianza, respeto y responsabilidad compartida, impulsando la participación activa en distintos ámbitos —educativos, laborales y comunitarios— y promoviendo una ciudadanía más consciente y comprometida.
+    </p>
+    <h2 class="section-title reveal">Habilidades para<br>el trabajo en equipo</h2>
+    <p class="section-desc reveal">
+      Para que el trabajo colaborativo sea efectivo y para evitar mal entendimientos entre compañeros, es importante que los equipos desarrollen una serie de habilidades clave.
+    </p>
+
+    <div class="cards-grid">
+
+      <!-- Card 1 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#c4622d; --card-gradient:linear-gradient(135deg,#c4622d,#e8a838);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="260" cy="-20" r="100" fill="rgba(255,255,255,0.12)"/>
+                <circle cx="30" cy="140" r="70" fill="rgba(255,255,255,0.08)"/>
+                <rect x="80" y="20" width="60" height="60" rx="12" fill="rgba(255,255,255,0.1)" transform="rotate(15 110 50)"/>
+                <circle cx="200" cy="110" r="35" fill="rgba(255,255,255,0.1)"/>
+                <rect x="150" y="30" width="40" height="40" rx="8" fill="rgba(255,255,255,0.07)" transform="rotate(-10 170 50)"/>
+              </svg>
+              <div class="card-illustration-emoji">🤝</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 01</div>
+              <div class="card-title">Colaboración</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">🤝</div>
+            <div class="back-title">Colaboración</div>
+            <p class="back-text">Favorece la creatividad, la innovación y la eficiencia. El trabajo en equipo es esencial para fomentar la participación activa y democrática.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#3a7ca5; --card-gradient:linear-gradient(135deg,#3a7ca5,#5ab4d6);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <rect x="-20" y="-20" width="120" height="120" rx="60" fill="rgba(255,255,255,0.1)"/>
+                <rect x="200" y="80" width="140" height="140" rx="70" fill="rgba(255,255,255,0.08)"/>
+                <line x1="60" y1="80" x2="240" y2="80" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+                <line x1="60" y1="100" x2="200" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+                <circle cx="150" cy="50" r="20" fill="rgba(255,255,255,0.12)"/>
+              </svg>
+              <div class="card-illustration-emoji">💬</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 02</div>
+              <div class="card-title">Comunicación Abierta</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">💬</div>
+            <div class="back-title">Comunicación Abierta</div>
+            <p class="back-text">Fundamental para el intercambio de ideas y la retroalimentación constante entre todos los miembros del equipo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#5a7a62; --card-gradient:linear-gradient(135deg,#5a7a62,#84b090);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="150,10 280,130 20,130" fill="rgba(255,255,255,0.1)"/>
+                <polygon points="80,20 180,20 230,110 30,110" fill="rgba(255,255,255,0.07)"/>
+                <circle cx="240" cy="30" r="40" fill="rgba(255,255,255,0.09)"/>
+                <circle cx="60" cy="130" r="50" fill="rgba(255,255,255,0.07)"/>
+              </svg>
+              <div class="card-illustration-emoji">🧩</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 03</div>
+              <div class="card-title">Diversidad de Habilidades</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">🧩</div>
+            <div class="back-title">Diversidad de Habilidades</div>
+            <p class="back-text">Se aprovechan los conocimientos y perspectivas únicas de cada integrante, enriqueciendo el resultado final del equipo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#8b6ba8; --card-gradient:linear-gradient(135deg,#8b6ba8,#b89fd0);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="20" width="80" height="80" rx="16" fill="rgba(255,255,255,0.1)" transform="rotate(20 60 60)"/>
+                <rect x="160" y="40" width="100" height="100" rx="50" fill="rgba(255,255,255,0.08)"/>
+                <rect x="100" y="10" width="50" height="50" rx="10" fill="rgba(255,255,255,0.07)" transform="rotate(-15 125 35)"/>
+                <circle cx="60" cy="140" r="40" fill="rgba(255,255,255,0.06)"/>
+              </svg>
+              <div class="card-illustration-emoji">🛡️</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 04</div>
+              <div class="card-title">Cultura de Confianza</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">🛡️</div>
+            <div class="back-title">Cultura de Confianza</div>
+            <p class="back-text">Crear un entorno seguro donde se pueda disentir respetuosamente y discutir ideas libremente, sin miedo al juicio.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#c09010; --card-gradient:linear-gradient(135deg,#e8a838,#f5cc72);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="150" cy="80" r="80" fill="rgba(255,255,255,0.08)"/>
+                <circle cx="150" cy="80" r="50" fill="rgba(255,255,255,0.08)"/>
+                <circle cx="150" cy="80" r="25" fill="rgba(255,255,255,0.1)"/>
+                <circle cx="280" cy="20" r="50" fill="rgba(255,255,255,0.07)"/>
+                <circle cx="20" cy="150" r="40" fill="rgba(255,255,255,0.06)"/>
+              </svg>
+              <div class="card-illustration-emoji">🌟</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 05</div>
+              <div class="card-title">Sentido de Pertenencia</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">🌟</div>
+            <div class="back-title">Sentido de Pertenencia</div>
+            <p class="back-text">Sentirse parte del grupo da seguridad, fortalece relaciones y hace consciente a cada persona de su aporte a las metas comunes.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#b5405a; --card-gradient:linear-gradient(135deg,#b5405a,#d97b8a);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="0" width="300" height="160" fill="none"/>
+                <path d="M0,80 Q75,20 150,80 T300,80" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none"/>
+                <path d="M0,100 Q75,40 150,100 T300,100" stroke="rgba(255,255,255,0.12)" stroke-width="2" fill="none"/>
+                <circle cx="80" cy="30" r="35" fill="rgba(255,255,255,0.09)"/>
+                <circle cx="220" cy="120" r="50" fill="rgba(255,255,255,0.07)"/>
+              </svg>
+              <div class="card-illustration-emoji">🎓</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 06</div>
+              <div class="card-title">Aprendizaje Colectivo</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">🎓</div>
+            <div class="back-title">Aprendizaje Colectivo</div>
+            <p class="back-text">Habilidad blanda clave para el desarrollo psicosocial y la formación de ciudadanos democráticos activos en la sociedad.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 7 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#2e7d72; --card-gradient:linear-gradient(135deg,#2e7d72,#52b0a5);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="150,0 300,160 0,160" fill="rgba(255,255,255,0.07)"/>
+                <polygon points="150,30 270,160 30,160" fill="rgba(255,255,255,0.06)"/>
+                <circle cx="150" cy="55" r="30" fill="rgba(255,255,255,0.12)"/>
+                <rect x="230" y="0" width="80" height="80" rx="40" fill="rgba(255,255,255,0.08)"/>
+              </svg>
+              <div class="card-illustration-emoji">🎯</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 07</div>
+              <div class="card-title">Metas Comunes</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">🎯</div>
+            <div class="back-title">Metas Comunes</div>
+            <p class="back-text">Cuando el equipo comparte un objetivo claro, cada persona comprende cómo su esfuerzo individual contribuye al logro colectivo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 8 -->
+      <div class="flip-card reveal" onclick="this.classList.toggle('flipped')"
+           style="--card-color:#7a5c3a; --card-gradient:linear-gradient(135deg,#7a5c3a,#a8845c);">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-illustration">
+              <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <path d="M30,80 C30,40 90,20 150,50 C210,80 270,40 270,80 C270,120 210,140 150,110 C90,80 30,120 30,80Z" fill="rgba(255,255,255,0.1)"/>
+                <circle cx="30" cy="80" r="25" fill="rgba(255,255,255,0.12)"/>
+                <circle cx="270" cy="80" r="25" fill="rgba(255,255,255,0.12)"/>
+                <circle cx="260" cy="20" r="40" fill="rgba(255,255,255,0.07)"/>
+              </svg>
+              <div class="card-illustration-emoji">🔄</div>
+            </div>
+            <div class="card-content">
+              <div class="card-number">Pilar 08</div>
+              <div class="card-title">Retroalimentación</div>
+              <div class="card-hint">↺ Clic para ver más</div>
+            </div>
+          </div>
+          <div class="flip-card-back">
+            <div class="back-icon">🔄</div>
+            <div class="back-title">Retroalimentación</div>
+            <p class="back-text">El intercambio continuo de perspectivas permite a cada miembro crecer, mejorar y fortalecer las dinámicas del equipo.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /cards-grid -->
+  </section>
+
+  <!-- ══ QUOTE BAND ═════════════════════════════════════════ -->
+  <div class="quote-band">
+    <blockquote>
+      "Si todos avanzamos juntos, <span>el exito se cuida solo."</span>
+      <cite>— Henry Ford</cite>
+    </blockquote>
+  </div>
+
+  <!-- ══ INFO STRIP ═════════════════════════════════════════ -->
+  <div class="info-strip">
+    <div class="info-inner">
+      <div class="info-text">
+        <div class="section-label">¿Por qué importa?</div>
+        <h2 class="section-title reveal" style="font-size:clamp(1.8rem,4vw,2.8rem);">
+          Habilidades que transforman entornos
+        </h2>
+        <p class="section-desc reveal">
+          El trabajo colaborativo no es solo una estrategia pedagógica; es una forma de relacionarse que impacta directamente en la motivación, la creatividad y el bienestar de las personas.
+        </p>
+      </div>
+      <ul class="pillars-list">
+        <li class="pillar-item reveal">
+          <div class="pillar-icon" style="background:#fde8db;">🏫</div>
+          <div class="pillar-text">
+            <strong>Contexto educativo</strong>
+            <span>Fomenta la participación activa y democrática</span>
+          </div>
+        </li>
+        <li class="pillar-item reveal">
+          <div class="pillar-icon" style="background:#dbeaf5;">💼</div>
+          <div class="pillar-text">
+            <strong>Contexto laboral</strong>
+            <span>Mejora la eficiencia e impulsa la innovación</span>
+          </div>
+        </li>
+        <li class="pillar-item reveal">
+          <div class="pillar-icon" style="background:#e2eee4;">🧠</div>
+          <div class="pillar-text">
+            <strong>Desarrollo psicosocial</strong>
+            <span>Fortalece la identidad y las relaciones interpersonales</span>
+          </div>
+        </li>
+        <li class="pillar-item reveal">
+          <div class="pillar-icon" style="background:#ece6f4;">🗳️</div>
+          <div class="pillar-text">
+            <strong>Ciudadanía</strong>
+            <span>Forma personas conscientes que aportan a la sociedad</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ═════════════════════════════════════════════ -->
+  <footer>
+    <p>Esto es un pequeño blog sobre trabajo colaborativo :D</p>
+  </footer>
+
+  <script>
+    // ── Scroll reveal ──────────────────────────────────────
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          // stagger children inside a grid
+          e.target.querySelectorAll('.reveal').forEach((el, i) => {
+            el.style.transitionDelay = `${i * 80}ms`;
+          });
+        }
+      }),
+      { threshold: 0.12 }
+    );
+
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+      // stagger cards
+      if (el.classList.contains('flip-card')) {
+        el.style.transitionDelay = `${(i % 4) * 80}ms`;
+      }
+      observer.observe(el);
+    });
+
+    // ── Keyboard accessibility for flip cards ─────────────
+    document.querySelectorAll('.flip-card').forEach(card => {
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.addEventListener('keypress', e => {
+        if (e.key === 'Enter' || e.key === ' ') card.classList.toggle('flipped');
+      });
+    });
+  </script>
+</body>
+</html>
